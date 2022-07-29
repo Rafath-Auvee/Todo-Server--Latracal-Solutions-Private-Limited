@@ -12,8 +12,6 @@ require("dotenv").config();
 // Port
 const port = process.env.PORT || 5000;
 
-
-
 const uri = `mongodb+srv://${process.env.user}:${process.env.password}@todo.6i5po.mongodb.net/?retryWrites=true&w=majority`;
 const client = new MongoClient(uri, {
   useNewUrlParser: true,
@@ -25,7 +23,7 @@ async function run() {
     await client.connect();
     const data = client.db("Todo").collection("Task");
     console.log("DB Connected");
-    
+
     //Reading All Tasks
     app.get("/all", async (req, res) => {
       const query = {};
@@ -42,6 +40,33 @@ async function run() {
       res.send(product);
     });
 
+    app.put(`/edit/:id`, async (req, res) => {
+      const id = req.params.id;
+      const updatedTask = req.body;
+      const filter = { _id: ObjectId(id) };
+      const options = { upsert: true };
+      const updatedDoc = {
+        $set: {
+          Task: updatedTask.Task,
+          Description: updatedTask.Description,
+          Deadline: updatedTask.Deadline,
+        },
+      };
+      console.log("Update Complete");
+      const result = await data.updateOne(filter, updatedDoc, options);
+      res.send(result);
+    });
+
+    //delete todo
+
+    app.delete(`/all/:id`, async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const result = await data.deleteOne(query);
+      res.send(result);
+    });
+
+    
   } finally {
   }
 }
