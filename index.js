@@ -66,6 +66,36 @@ async function run() {
       res.send(result);
     });
 
+    // update status
+
+    app.put(`/all/:id`, async (req, res) => {
+      const id = req.params.id;
+      const updatedProduct = req.body;
+      const filter = { _id: ObjectId(id) };
+      const options = { upsert: true };
+      const updatedDoc = {
+        $set: {
+          Complete: true,
+        },
+      };
+      const result = await data.updateOne(filter, updatedDoc, options);
+      res.send(result);
+    });
+
+    app.patch(`/all/:id`, async (req, res) => {
+      const id = req.params.id;
+      const updatedProduct = req.body;
+      const filter = { _id: ObjectId(id) };
+      const options = { upsert: true };
+      const updatedDoc = {
+        $set: {
+          Complete: false,
+        },
+      };
+      const result = await data.updateOne(filter, updatedDoc, options);
+      res.send(result);
+    });
+
     
   } finally {
   }
@@ -74,7 +104,7 @@ async function run() {
 run().catch(console.dir);
 
 app.get("/", (req, res) => {
-  res.send("Paratronics Server is Running");
+  res.send("Todo is Running");
 });
 
 app.listen(port, () => {
